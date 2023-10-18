@@ -28,52 +28,81 @@ price_save = [] #금액
 print("■" * 50)
 print("■■ == 스타벅스 ==")
 print("■■ ver 1.2")
-print("■■ 메인 메뉴")
-for i in range(len(main_name)):
-    print(f"▲△ {i + 1}.{main_name[i + 1]}")
 
-print("■" * 20)
+while True:
+    print("="*50)
+    print("만나서 반갑습니다. 고객님.")
+    print("■■ 메인 메뉴")
+    for i in range(len(main_name)):
+        print(f"▲△ {i + 1}.{main_name[i + 1]}")
 
-choice = user_choice(len(main_name), "main")
+    print("■" * 20)
 
-#세부 메뉴 출력
-if choice == 1:    #음료
-    print("▲▲ 음료(Drink) 메뉴")
-    for i in range(len(drink_name)):
-        print(f"▲△ {i+1}.{drink_name[i+1]} ({drink_price[i+1]})")
-        # 세부 메뉴 선택
-    sub = user_choice(len(drink_name), "sub")
-    # 5. 음료 주문 저장
-    menu_save.append(drink_name[sub])
-    price_save.append(drink_price[sub])
-elif choice == 2:  #빵
-    print("▲▲ 빵(Bakery) 메뉴")
-    for i in range(len(bakery_name)):
-        print(f"▲△ {i + 1}.{bakery_name[i + 1]} ({bakery_price[i + 1]})")
-    sub = user_choice(len(bakery_name), "sub")
-    menu_save.append(bakery_name[sub])
-    price_save.append(bakery_price[sub])
+    choice = user_choice(len(main_name), "main")
 
-elif choice == 3:  #굿즈
-    print("▲▲ 굿즈(Goods) 메뉴")
-    for i in range(len(goods_name)):
-        print(f"▲△ {i + 1}.{goods_name[i + 1]} ({goods_price[i + 1]})")
-    sub = user_choice(len(goods_name), "sub")
-    menu_save.append(goods_name[sub])
-    price_save.append(goods_price[sub])
-elif choice == 99:
-    print("스타벅스 키오스크를 종료합니다.")
-    exit()
+    #세부 메뉴 출력
+    if choice == 1:    #음료
+        print("▲▲ 음료(Drink) 메뉴")
+        for i in range(len(drink_name)):
+            print(f"▲△ {i+1}.{drink_name[i+1]} ({drink_price[i+1]})")
+            # 세부 메뉴 선택
+        sub = user_choice(len(drink_name), "sub")
+        # 5. 음료 주문 저장
+        menu_save.append(drink_name[sub])
+        price_save.append(drink_price[sub])
+    elif choice == 2:  #빵
+        print("▲▲ 빵(Bakery) 메뉴")
+        for i in range(len(bakery_name)):
+            print(f"▲△ {i + 1}.{bakery_name[i + 1]} ({bakery_price[i + 1]})")
+        sub = user_choice(len(bakery_name), "sub")
+        menu_save.append(bakery_name[sub])
+        price_save.append(bakery_price[sub])
 
-for menu in menu_save:
-    print(menu)
-for price in price_save:
-    print(price)
+    elif choice == 3:  #굿즈
+        print("▲▲ 굿즈(Goods) 메뉴")
+        for i in range(len(goods_name)):
+            print(f"▲△ {i + 1}.{goods_name[i + 1]} ({goods_price[i + 1]})")
+        sub = user_choice(len(goods_name), "sub")
+        menu_save.append(goods_name[sub])
+        price_save.append(goods_price[sub])
+    elif choice == 99:
+        print("스타벅스 키오스크를 종료합니다.")
+        exit()
+
+    for menu in menu_save:
+        print(menu)
+    for price in price_save:
+        print(price)
 
 
 
-#4. 세부 메뉴 선택
+    #6. 추가 주문 or 결제 여부 선택
 
-# while True:
-#     choice = int(input(" >> 번호:"))
-#
+    # while True:
+    # choice = int(input(" >> 번호:"))
+    #
+
+    print("●○ 추가 주문 하시겠습니까? (y/n)")
+    flag = 0 # 추가주문 y/n
+    while True:
+        choice_yn = input("y/n:")
+        if choice_yn.lower() == "y":
+            break
+        elif choice_yn == "n" or choice_yn =="N":
+            flag = 1 # 결제창으로 이동
+            break
+        else:
+            print("MSG: y 또는 n으로만 입력해주세요.")
+    # 7.주문내역 출력!
+
+    if flag == 1:
+        print("◆" * 50)
+        print(f"◆◇ 고객님이 주문하신 메뉴")
+        total_price = 0
+        for i, menu in enumerate(menu_save):
+            print(f"◆◇ {i+1}.{menu}")
+        for price in price_save:
+            total_price += price
+        print(f"고객님이 주문하신 메뉴는 {len(menu_save)}개로 총 결제금액은 {total_price}원 입니다.")
+        print("이용해주셔서 감사합니다.")
+
