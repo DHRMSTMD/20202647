@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 import time
 import re
 import math
@@ -25,9 +26,9 @@ options = Options()
 # selenium이 작업 완료 후에 전용 브라우저 종료 x
 options.add_experimental_option("detach", True)
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
+driver.implicitly_wait(3)
 #URL 접속
-url = "https://movie.daum.net/moviedb/grade?movieId=165591"
+url = "https://movie.daum.net/moviedb/grade?movieId=169137"
 driver.get(url)
 time.sleep(1)
 
@@ -59,4 +60,35 @@ for i in range(click_cnt):
 #전체 소스코드 가져오기2(평점 모두 출력)
 doc.html = driver.page_source
 doc = BeautifulSoup(doc_html, "html.parser")
-review_list = doc.select("")
+review_list = doc.select("ul.list_comment > li")
+
+#print(len(review_list))
+
+for item in review_list:
+    review_score = item.select("div.ratings")[0].get_text()
+    print(f"   - 평점: {review_score}")
+
+    review_content = item.select("p.desc_txt")[0].get_text().strip()
+    review_content = re.sub("\n", "", review_content)
+    #\n : 한 줄 개행
+    #수집한 리뷰가 개행 -> 문자열 \n 포함
+    print(f"   - 리뷰: {review_content}")
+    review_writer = item.select("a.link_nick > span")[1].get_text()#[댓글 작성자, 작성자, 댓글 모아보기]
+    print(f"   - 작성자: {review_writer}")
+    # 24시간이내에 작성된 글은 날짜 -> 예 : 21시간전, 17시간전
+    # 실제날짜표기법 -> 2023.11.17. 12:15
+    # 표기법: 2023.11.17. 12:15
+    # review_date -> 17시간전 or 2023.11.17 12:17
+
+    review_date = item.select("span.txt_date")[0].get_text()
+
+    if len(review_date) < 7:
+        #예: 17시간전 -> 숫자만 추출:17
+     reg_hour = int(re.sub(r"[^~0-9]", "", review_date))
+     #print(reg_hour)
+     #print(datetime.now())
+     #예) 현재시간에서 빼기
+     review_date = datetime.now()-timedelta(hours=reg_hour)
+     #예) 2023-11-16 18:32:59.482053 -> 2023.11.16.18:32
+     review_date = review_date.strftime("%Y. %m. %d. %H:%M")
+    print(f"   - 날짜: {review_date}")
