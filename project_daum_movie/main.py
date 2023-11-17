@@ -34,7 +34,7 @@ time.sleep(1)
 #페이지 소스 가져오기
 doc_html = driver.page_source
 
-doc = BeautifulSoup(doc_html, "html_parser")
+doc = BeautifulSoup(doc_html, "html.parser")
 
 #영화 제목 수집
 movie_title = doc.select("span.txt_tit")[0].get_text()
