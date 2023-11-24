@@ -1,3 +1,6 @@
+#TODO : 1분전 날짜 계산해서 저장
+# 조금전 , 몇분전, 시간전, 날짜
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -8,6 +11,8 @@ from datetime import datetime, timedelta
 import time
 import re
 import math
+from db.movie_dao import add_review
+
 # selenium + beautifulSoup4
 # selenium 전체소스코드 가져오기(+동적으로 페이지 조작)
 # BeautifulSoup4 필요한 데이터만 select
@@ -92,3 +97,15 @@ for item in review_list:
      #예) 2023-11-16 18:32:59.482053 -> 2023.11.16.18:32
      review_date = review_date.strftime("%Y. %m. %d. %H:%M")
     print(f"   - 날짜: {review_date}")
+
+    #Maria db 저장
+    #1) db에 보낼 데이터 만들기
+    data = {
+        "title": movie_title,
+        "score": review_score,
+        "review": review_content,
+        "writer": review_writer,
+        "reg_date": review_date
+
+    }
+    add_review(data)
