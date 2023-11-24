@@ -43,6 +43,6 @@ def connection():
                 cursorclass=pymysql.cursors.DictCursor
 
             )
+            return conn
         except pymysql.Error as e:
             print(f"MARIADB 연결 실패 {e}")
-
