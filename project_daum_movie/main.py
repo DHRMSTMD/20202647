@@ -33,7 +33,7 @@ options.add_experimental_option("detach", True)
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 driver.implicitly_wait(3)
 #URL 접속
-url = "https://movie.daum.net/moviedb/grade?movieId=169137"
+url = "https://movie.daum.net/moviedb/grade?movieId=146084"
 driver.get(url)
 time.sleep(1)
 
@@ -68,7 +68,7 @@ doc = BeautifulSoup(doc_html, "html.parser")
 review_list = doc.select("ul.list_comment > li")
 
 #print(len(review_list))
-
+#반복 1회마다 리뷰 1건씩 수집
 for item in review_list:
     review_score = item.select("div.ratings")[0].get_text()
     print(f"   - 평점: {review_score}")
@@ -81,25 +81,47 @@ for item in review_list:
     review_writer = item.select("a.link_nick > span")[1].get_text()#[댓글 작성자, 작성자, 댓글 모아보기]
     print(f"   - 작성자: {review_writer}")
     # 24시간이내에 작성된 글은 날짜 -> 예 : 21시간전, 17시간전
-    # 실제날짜표기법 -> 2023.11.17. 12:15
+    # 조금전 : 현재시간(분) - 1분
+    # 몇분전 : 현재시간(분)  - ?
+    # 시간전 : 현재시간(시간) - ?
+    # 2023.11.17. 12:15
+    # 실제날짜표기법 -> 2023.11.17. 12:15 : 그대로
+
+
+
     # 표기법: 2023.11.17. 12:15
     # review_date -> 17시간전 or 2023.11.17 12:17
 
     review_date = item.select("span.txt_date")[0].get_text()
 
-    if len(review_date) < 7:
+    #review_date 4가지 표기법중 1
+
+    if review_date == "조금 전":
+        review_date = (datetime.now()-timedelta(minutes=1))
+        review_date = review_date.strftime("%Y. %m. %d. %H:%M")
+    elif review_date[-2:] == "분전":
+        reg_minute = int(re.sub(r"[^~0-9]", "", review_date))
+        review_date = review_date = (datetime.now() - timedelta(minutes=reg_minute))
+        review_date = review_date.strftime("%Y. %m. %d. %H:%M")
+    elif review_date[-3:] == "시간 전":
+        reg_hour = int(re.sub(r"[^~0-9]", "", review_date))
+        review_date = review_date = (datetime.now() - timedelta(hours=reg_hour))
+        review_date = review_date.strftime("%Y. %m. %d. %H:%M")
+
+    #if len(review_date) < 7:
         #예: 17시간전 -> 숫자만 추출:17
-     reg_hour = int(re.sub(r"[^~0-9]", "", review_date))
+     #reg_hour = int(re.sub(r"[^~0-9]", "", review_date))
      #print(reg_hour)
      #print(datetime.now())
      #예) 현재시간에서 빼기
-     review_date = datetime.now()-timedelta(hours=reg_hour)
+    # review_date = datetime.now()-timedelta(hours=reg_hour)
      #예) 2023-11-16 18:32:59.482053 -> 2023.11.16.18:32
-     review_date = review_date.strftime("%Y. %m. %d. %H:%M")
+     #review_date = review_date.strftime("%Y. %m. %d. %H:%M")
     print(f"   - 날짜: {review_date}")
 
     #Maria db 저장
     #1) db에 보낼 데이터 만들기
+    #tip : key값 table의 coulmn(열)과 동일하게
     data = {
         "title": movie_title,
         "score": review_score,
@@ -109,3 +131,5 @@ for item in review_list:
 
     }
     add_review(data)
+
+
