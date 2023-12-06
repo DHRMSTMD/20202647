@@ -10,7 +10,7 @@ import re
 import time
 from bs4 import BeautifulSoup
 
-from project_daum_movie.db.movie_dao import add_review
+from project_daum_movie.db.movie_dao import add_review, get_last_review
 # Selenium + BeautifulSoup4
 #  - Selenium: 전체 소스코드 가져오기(+동적으로 페이지 조작)
 #  - BeautifulSoup4: 필요한 데이터만 Select
@@ -21,7 +21,14 @@ from project_daum_movie.db.movie_dao import add_review
 #   - 전용 브라우저 Open -> 작업 -> 브라우저 Close(Default)
 
 
-def review_collector(movie_code, last_date):
+def review_collector(movie_code):
+    # last date = db에 저장된 마지막 리뷰 날짜.
+    # DB에서 데이터 조회 실패 ->None
+    last_date = get_last_review()
+    if last_date == None:
+        last_date = 0
+    else:
+        last_date = int(last_date["int_regdate"])
     # ** Selenium 사용방법 2가지
     #   1.직접 다운로드(크롬 브라우저)해서 사용
     #     url: https://sites.google.com/chromium.org/driver/
